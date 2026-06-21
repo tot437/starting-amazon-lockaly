@@ -1,1 +1,1 @@
-const card = [{}];
+const card = [];
