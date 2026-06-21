@@ -5,13 +5,7 @@ let cardSummaryHTML = '';
 
 card.forEach((cardItem) => {
     const productId = cardItem.productID;
-    let matchingProduct;
-
-    products.forEach((products) => {
-        if (productId === productId) {
-            matchingProduct = products;
-        }
-    });
+    const matchingProduct = products.find((product) => product.id === productId);
 
     cardSummaryHTML += `
       <div class="cart-item-container">
@@ -36,7 +30,8 @@ card.forEach((cardItem) => {
                     <span class="update-quantity-link link-primary">
         Update
       </span>
-                    <span class="delete-quantity-link link-primary">
+                    <span class="delete-quantity-link link-primary js-delete-link"
+                     data-products-id="${productId}">
         Delete
       </span>
                 </div>
@@ -85,3 +80,28 @@ card.forEach((cardItem) => {
 `;
 });
 document.querySelector('.js-order-summary').innerHTML = cardSummaryHTML;
+document.querySelectorAll('.js-delete-link').forEach((link) => {
+    link.addEventListener('click', () => {
+        const productID = link.dataset.productsId;
+
+        removeFromCard(productID);
+
+        const container = link.closest('.cart-item-container');
+        container.remove();
+
+        console.log(card);
+    });
+});
+
+
+document.querySelectorAll('.js-delete-link').forEach((link) => {
+    link.addEventListener('click', () => {
+        const productID = link.dataset.productsId;
+
+
+        const container = link.closest('.cart-item-container');
+        container.remove();
+
+        console.log(card);
+    });
+});
