@@ -1,5 +1,5 @@
 import { card } from '../data/cards.js';
-
+import { products } from '../data/products.js';
 
 let productsHTML = '';
 
