@@ -1,129 +1,24 @@
-/* export let cards = JSON.parse(localStorage.getItem('cards'));
-if (!cards) {
-    cards = [{
+// جلب البيانات من الـ LocalStorage أو وضع قيم افتراضية
+export let cards = JSON.parse(localStorage.getItem('cards')) || [{
         productID: 'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
         quantity: 2,
-    }, {
+        deliveryOptionID: '1'
+    },
+    {
         productID: '15b6fc6f-327a-4ec4-896f-486349e85a3d',
-        quantity: 1
-    }];
-}
-
-export function saveToStorage() {
-    localStorage.setItem('cards', JSON.stringify(cards));
-}
-
-export function addToCart(productID) {
-    let matchingItem;
-
-    cards.forEach((cardItem) => {
-        if (cardItem.productID !== productID) {
-            newCart.push(cardItem);
-        }
-    });
-
-    cards.length = 0;
-    cards.push(...newCart);
-
-    saveToStorage();
-};
-export function removeFromCart(productId) {
-    const newCart = [];
-
-    cards.forEach((cardItem) => {
-        if (cardItem.productID !== productId) {
-            newCart.push(cardItem);
-        }
-    });
-
-    cards.length = 0;
-    cards.push(...newCart);
-
-    saveToStorage();
-} */
-
-/* export let cards = JSON.parse(localStorage.getItem('cards'));
-
-if (!cards) {
-    cards = [{
-            productID: 'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-            quantity: 2
-        },
-        {
-            productID: '15b6fc6f-327a-4ec4-896f-486349e85a3d',
-            quantity: 1
-        }
-    ];
-}
-
-export function saveToStorage() {
-    localStorage.setItem('cards', JSON.stringify(cards));
-}
-
-export function addToCart(productID) {
-    let matchingItem;
-
-    cards.forEach((cardItem) => {
-        if (cardItem.productID === productID) {
-            matchingItem = cardItem;
-        }
-    });
-
-    if (matchingItem) {
-        matchingItem.quantity += 1;
-    } else {
-        cards.push({
-            productID: productID,
-            quantity: 1
-        });
+        quantity: 1,
+        deliveryOptionID: '2'
     }
+];
 
-    saveToStorage();
-}
-
-export function removeFromCart(productID) {
-    const newCards = [];
-
-    cards.forEach((cardItem) => {
-        if (cardItem.productID !== productID) {
-            newCards.push(cardItem);
-        }
-    });
-
-    cards.length = 0;
-    cards.push(...newCards);
-
-    saveToStorage();
-}*/
-// استرجاع البيانات والتأكد من أنها مصفوفة
-export let cards = JSON.parse(localStorage.getItem('cards'));
-
-if (!cards) {
-    cards = [{
-            productID: 'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-            quantity: 2,
-            deliveryOptionID: '1'
-        },
-        {
-            productID: '15b6fc6f-327a-4ec4-896f-486349e85a3d',
-            quantity: 1,
-            deliveryOptionID: '2'
-        }
-    ];
-}
-
+// حفظ التعديلات
 export function saveToStorage() {
     localStorage.setItem('cards', JSON.stringify(cards));
 }
 
+// إضافة منتج للسلة
 export function addToCart(productID) {
-    let matchingItem;
-
-    cards.forEach((cardItem) => {
-        if (cardItem.productID === productID) {
-            matchingItem = cardItem;
-        }
-    });
+    let matchingItem = cards.find(cardItem => cardItem.productID === productID);
 
     if (matchingItem) {
         matchingItem.quantity += 1;
@@ -131,20 +26,23 @@ export function addToCart(productID) {
         cards.push({
             productID: productID,
             quantity: 1,
-            deliveryOptionID: '1'
+            deliveryOptionID: '1' // خيار افتراضي
         });
     }
-
     saveToStorage();
 }
 
+// حذف منتج من السلة باستخدام filter (طريقة آمنة وسريعة)
 export function removeFromCart(productID) {
-    // استخدام filter لتصفية المصفوفة وحذف المنتج المطلوب بشكل آمن
-    const newCards = cards.filter(cardItem => cardItem.productID !== productID);
-
-    // تحديث المصفوفة الأصلية
-    cards.length = 0;
-    cards.push(...newCards);
-
+    cards = cards.filter(cardItem => cardItem.productID !== productID);
     saveToStorage();
+}
+
+// تحديث خيار التوصيل للمنتج
+export function updateDeliveryOption(productID, deliveryOptionID) {
+    let matchingItem = cards.find(cardItem => cardItem.productID === productID);
+    if (matchingItem) {
+        matchingItem.deliveryOptionID = deliveryOptionID;
+        saveToStorage();
+    }
 }
