@@ -202,101 +202,142 @@ document.querySelectorAll('.js-delete-link').forEach((link) => {
 import { cards, removeFromCart } from '../data/cards.js';
 import { products } from '../data/products.js';
 import { formatCurrency } from '../utills/money.js';
+import { hello } from 'https://unpkg.com/supersimpledev@1.0.1/hello.esm.js';
+import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
+import { deliveryOption } from '../data/deliveryoption.js';
 
-// وضع الكود بالكامل داخل دالة ليعاد تشغيلها وتحديث الصفحة عند الحذف بانتظام
+const today = dayjs();
+const deliveryDate = today.add(7, 'days');
+console.log(deliveryDate.format('dddd, MMMM D'));
+hello();
+
 function renderOrderSummary() {
-    let cardSummaryHTML = '';
+    let cartSummaryHTML = '';
 
-    cards.forEach((cardItem) => {
-        const productId = cardItem.productID;
+    function deliveryOptionHTML(cartItem) {
+        let html = '';
 
-        // البحث عن بيانات المنتج الكاملة من مصفوفة المنتجات
-        const matchingProduct = products.find(p => p.id === productId);
+        deliveryOption.forEach((option, index) => {
+            const today = dayjs();
+            const deliveryDate = today.add(option.deliveryDate, 'days');
+            const dayString = deliveryDate.format('dddd, MMMM D');
 
-        if (!matchingProduct) {
-            console.log("Invalid product id:", productId);
-            return;
-        }
+            const priceString =
+                option.priceCents === 0 ?
+                'FREE' :
+                `$${formatCurrency(option.priceCents)} Shipping`;
 
-        cardSummaryHTML += `
-        <div class="cart-item-container js-cart-item-container-${productId}">
-          <div class="delivery-date">
-            Delivery date: Tuesday, June 21
-          </div>
+            const isChecked = option.id === cartItem.deliveryOptionID || (!cartItem.deliveryOptionID && index === 0);
 
-          <div class="cart-item-details-grid">
-            <img class="product-image" src="${matchingProduct.image}" alt="${matchingProduct.name}">
+            html += `
+        <div class="delivery-option">
+          <input
+            type="radio"
+            class="delivery-option-input"
+            name="delivery-option-${cartItem.productID}"
+            value="${option.id}"
+            ${isChecked ? 'checked' : ''}
+          >
 
-            <div class="cart-item-details">
-              <div class="product-name">
-                ${matchingProduct.name}
-              </div>
-
-              <div class="product-price">
-                $${formatCurrency(matchingProduct.priceCents)}
-              </div>
-
-              <div class="product-quantity">
-                <span>
-                  Quantity: <span class="quantity-label">${cardItem.quantity}</span>
-                </span>
-
-                <span class="update-quantity-link link-primary">
-                  Update
-                </span>
-
-                <span class="delete-quantity-link link-primary js-delete-link" data-product-id="${productId}">
-                  Delete
-                </span>
-              </div>
+          <div>
+            <div class="delivery-option-date">
+              ${dayString}
             </div>
 
-            <div class="delivery-options">
-              <div class="delivery-options-title">
-                Choose a delivery option:
-              </div>
-              <div class="delivery-option">
-                <input type="radio" checked class="delivery-option-input" name="delivery-option-${productId}">
-                <div>
-                  <div class="delivery-option-date">Tuesday, June 21</div>
-                  <div class="delivery-option-price">FREE Shipping</div>
-                </div>
-              </div>
-              <div class="delivery-option">
-                <input type="radio" class="delivery-option-input" name="delivery-option-${productId}">
-                <div>
-                  <div class="delivery-option-date">Wednesday, June 15</div>
-                  <div class="delivery-option-price">$4.99 - Shipping</div>
-                </div>
-              </div>
-              <div class="delivery-option">
-                <input type="radio" class="delivery-option-input" name="delivery-option-${productId}">
-                <div>
-                  <div class="delivery-option-date">Monday, June 13</div>
-                  <div class="delivery-option-price">$9.99 - Shipping</div>
-                </div>
-              </div>
+            <div class="delivery-option-price">
+              ${priceString}
             </div>
           </div>
         </div>
       `;
+        });
+
+        return html;
+    }
+
+    cards.forEach((cartItem) => {
+        const productId = cartItem.productID;
+
+        const matchingProduct = products.find((product) => {
+            return product.id === productId;
+        });
+
+        if (!matchingProduct) {
+            console.log('Invalid product id:', productId);
+            return;
+        }
+        const deliveryOptionID = cartItem.deliveryOptionID;
+        const option = deliveryOption.find((o) => o.id === deliveryOptionID) || deliveryOption[0];
+        const today = dayjs();
+        const deliveryDate = today.add(option.deliveryDate, 'days');
+        const dayString = deliveryDate.format('dddd, MMMM D');
+        cartSummaryHTML += `
+      <div class="cart-item-container js-cart-item-container-${productId}">
+        <div class="delivery-date">
+          Delivery date: ${dayString}
+        </div>
+
+        <div class="cart-item-details-grid">
+          <img
+            class="product-image"
+            src="${matchingProduct.image}"
+            alt="${matchingProduct.name}"
+          >
+
+          <div class="cart-item-details">
+            <div class="product-name">
+              ${matchingProduct.name}
+            </div>
+
+            <div class="product-price">
+              $${formatCurrency(matchingProduct.priceCents)}
+            </div>
+
+            <div class="product-quantity">
+              <span>
+                Quantity:
+                <span class="quantity-label">${cartItem.quantity}</span>
+              </span>
+
+              <span class="update-quantity-link link-primary">
+                Update
+              </span>
+
+              <span
+                class="delete-quantity-link link-primary js-delete-link"
+                data-product-id="${productId}"
+              >
+                Delete
+              </span>
+            </div>
+          </div>
+
+          <div class="delivery-options">
+            <div class="delivery-options-title">
+              Choose a delivery option:
+            </div>
+
+            ${deliveryOptionHTML(cartItem)}
+          </div>
+        </div>
+      </div>
+    `;
     });
 
-    document.querySelector('.js-order-summary').innerHTML = cardSummaryHTML;
 
-    // تفعيل أزرار الحذف بعد طباعة الـ HTML
+    document.querySelector('.js-order-summary').innerHTML = cartSummaryHTML;
+
     document.querySelectorAll('.js-delete-link').forEach((link) => {
         link.addEventListener('click', () => {
             const productId = link.dataset.productId;
 
-            // 1. الحذف من المصفوفة والتخزين في الـ LocalStorage
             removeFromCart(productId);
 
-            // 2. إعادة تشغيل الدالة لتحديث السلة وحذف العنصر تلقائياً من الواجهة وبشكل سليم
             renderOrderSummary();
         });
     });
 }
 
-// تشغيل الدالة لأول مرة عند تحميل الصفحة
+
+
 renderOrderSummary();
