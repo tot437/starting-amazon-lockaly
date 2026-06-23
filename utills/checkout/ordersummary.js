@@ -1,31 +1,20 @@
-import { cards, removeFromCart } from '../../data/cards.js';
-import { products } from '../../data/products.js';
+import { cards, removeFromCart, updateDeliveryOption } from '../../data/cards.js';
+import { products, getProduct } from '../../data/products.js';
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
-import { deliveryOption } from '../../data/deliveryoption.js';
+import { deliveryOption, getDeliveryOption } from '../../data/deliveryoption.js';
 import { formatCurrency } from '../money.js';
-
-// دالة مساعدة للحصول على خيار التوصيل (تمنع التكرار)
-function getDeliveryOption(deliveryOptionID) {
-    return deliveryOption.find(option => option.id === deliveryOptionID) || deliveryOption[0];
-}
 
 export function renderOrderSummary() {
     let cartSummaryHTML = '';
 
-    // دالة توليد خيارات التوصيل لكل منتج بشكل منفصل
+    // دالة توليد خيارات التوصيل
     function deliveryOptionHTML(matchingProduct, cartItem) {
         let html = '';
-
         deliveryOption.forEach((option) => {
             const today = dayjs();
             const deliveryDate = today.add(option.deliveryDate, 'days');
             const dayString = deliveryDate.format('dddd, MMMM D');
-
-            const priceString = option.priceCents === 0 ?
-                'FREE' :
-                `$${formatCurrency(option.priceCents)} Shipping`;
-
-            // تحديد الخيار المختار حالياً
+            const priceString = option.priceCents === 0 ? 'FREE' : `$${formatCurrency(option.priceCents)} Shipping`;
             const isChecked = option.id === cartItem.deliveryOptionID;
 
             html += `
@@ -48,12 +37,12 @@ export function renderOrderSummary() {
         return html;
     }
 
-    // بناء واجهة السلة
+    // بناء محتوى السلة
     cards.forEach((cartItem) => {
         const productId = cartItem.productID;
-        const matchingProduct = products.find((product) => product.id === productId);
+        const matchingProduct = getProduct(productId);
 
-        if (!matchingProduct) return; // تخطي المنتجات غير الصالحة لعدم كسر الصفحة
+        if (!matchingProduct) return;
 
         const selectedOption = getDeliveryOption(cartItem.deliveryOptionID);
         const today = dayjs();
@@ -83,21 +72,21 @@ export function renderOrderSummary() {
         `;
     });
 
+    // تحديث الصفحة
     const orderSummaryElement = document.querySelector('.js-order-summary');
     if (orderSummaryElement) {
         orderSummaryElement.innerHTML = cartSummaryHTML;
     }
 
-    // تفعيل أزرار الحذف
+    // تفعيل الأزرار
     document.querySelectorAll('.js-delete-link').forEach((link) => {
         link.onclick = () => {
             const productId = link.dataset.productId;
             removeFromCart(productId);
-            renderOrderSummary(); // إعادة رندر تلقائي لتحديث الشاشة
+            renderOrderSummary();
         };
     });
 
-    // تفعيل أزرار خيارات التوصيل
     document.querySelectorAll('.js-delivery-option').forEach((element) => {
         element.onclick = () => {
             const productId = element.dataset.productId;
@@ -107,5 +96,3 @@ export function renderOrderSummary() {
         };
     });
 }
-
-// تشغيل الدالة لأول مرة عند تحميل الصفحة
