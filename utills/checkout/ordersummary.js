@@ -3,7 +3,7 @@ import { products, getProduct } from '../../data/products.js';
 import dayjs from 'https://unpkg.com/supersimpledev@8.5.0/dayjs/esm/index.js';
 import { deliveryOption, getDeliveryOption } from '../../data/deliveryoption.js';
 import { formatCurrency } from '../money.js';
-
+import { renderPaymentSummary } from './paymentsummary.js';
 export function renderOrderSummary() {
     let cartSummaryHTML = '';
 
@@ -11,9 +11,6 @@ export function renderOrderSummary() {
     function deliveryOptionHTML(matchingProduct, cartItem) {
         let html = '';
         deliveryOption.forEach((option) => {
-            const today = dayjs();
-            const deliveryDate = today.add(option.deliveryDate, 'days');
-            const dayString = deliveryDate.format('dddd, MMMM D');
             const priceString = option.priceCents === 0 ? 'FREE' : `$${formatCurrency(option.priceCents)} Shipping`;
             const isChecked = option.id === cartItem.deliveryOptionID;
 
@@ -76,6 +73,7 @@ export function renderOrderSummary() {
     const orderSummaryElement = document.querySelector('.js-order-summary');
     if (orderSummaryElement) {
         orderSummaryElement.innerHTML = cartSummaryHTML;
+        renderPaymentSummary();
     }
 
     // تفعيل الأزرار
@@ -83,6 +81,7 @@ export function renderOrderSummary() {
         link.onclick = () => {
             const productId = link.dataset.productId;
             removeFromCart(productId);
+            renderPaymentSummary();
             renderOrderSummary();
         };
     });
@@ -93,6 +92,7 @@ export function renderOrderSummary() {
             const deliveryOptionID = element.dataset.deliveryOptionId;
             updateDeliveryOption(productId, deliveryOptionID);
             renderOrderSummary();
+            renderPaymentSummary();
         };
     });
 }
