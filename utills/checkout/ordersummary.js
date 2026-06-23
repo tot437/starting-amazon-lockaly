@@ -25,7 +25,7 @@ export function renderOrderSummary() {
                     ${isChecked ? 'checked' : ''}
                   >
                   <div>
-                    <div class="delivery-option-date">${dayString}</div>
+                    <div class="delivery-option-date"></div>
                     <div class="delivery-option-price">${priceString}</div>
                   </div>
                 </div>
