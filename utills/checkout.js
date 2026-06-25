@@ -1,6 +1,6 @@
 import { renderOrderSummary } from '../utills/checkout/ordersummary.js';
 import { renderPaymentSummary } from '../utills/checkout/paymentsummary.js';
-import { loadProducts } from '../data/products.js';
+import { loadProducts, loadProductsFetch } from '../data/products.js';
 import { loadCarts } from '../data/cards.js';
 //import '../data/backed-practice.js';
 // استيراد كائن cart تحديداً من الملف الذي يحتوي على كود الـ OOP
