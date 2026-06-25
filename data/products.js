@@ -79,7 +79,22 @@ const product1 = new Product({
         "apparel"
     ]
 });
-console.log(product1);
+/*
+const date = new Date();
+console.log(date);
+console.log(date.toLocaleTimeString());
+console.log(this);
+const object2 = {
+    a:2,
+    b: this.a
+};
+function logThis() {
+    console.log(this);
+};
+logThis();
+logThis.call('HELLO');
+*/
+
 export const products = [{
         id: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
         image: 'images/products/athletic-cotton-socks-6-pairs.jpg',
